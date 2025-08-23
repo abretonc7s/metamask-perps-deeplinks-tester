@@ -1,36 +1,99 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MetaMask Perps Deep Links Tester
 
-## Getting Started
+A minimal web application for testing MetaMask Mobile perpetuals trading deep links. This tool generates QR codes and provides easy access to test deep links for the perps feature ([PR #18568](https://github.com/MetaMask/metamask-mobile/pull/18568)).
 
-First, run the development server:
+## Features
+
+- QR codes for each deep link for easy mobile scanning
+- Copy-to-clipboard functionality for deep links
+- Testing instructions for iOS and Android
+- Clean, minimal interface optimized for mobile devices
+
+## Deep Links Supported
+
+- **Perps Market Overview**: `https://link-test.metamask.io/perps`
+- **BTC Perps**: `https://link-test.metamask.io/perps-asset?symbol=BTC`
+- **ETH Perps**: `https://link-test.metamask.io/perps-asset?symbol=ETH`
+- **SOL Perps**: `https://link-test.metamask.io/perps-asset?symbol=SOL`
+
+## Local Development
+
+### Prerequisites
+
+- Node.js 18+ 
+- npm
+
+### Installation
+
+```bash
+npm install
+```
+
+### Running Locally
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Testing on Mobile
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Make sure your mobile device is on the same network as your development machine
+2. Find your machine's local IP address:
+   - Mac: `ifconfig | grep inet`
+   - Windows: `ipconfig`
+3. Open `http://[YOUR_IP]:3000` on your mobile device
+4. Scan QR codes or tap links to test with MetaMask Mobile
 
-## Learn More
+## Deployment
 
-To learn more about Next.js, take a look at the following resources:
+This project is configured for easy deployment with Vercel:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Push your code to a GitHub repository
+2. Import the project in [Vercel](https://vercel.com/new)
+3. Deploy with default settings (no configuration needed)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Or use the Vercel CLI:
 
-## Deploy on Vercel
+```bash
+npm i -g vercel
+vercel
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Testing Instructions
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### iOS Simulator
+
+```bash
+# Market overview
+xcrun simctl openurl booted "https://link-test.metamask.io/perps"
+
+# Specific assets
+xcrun simctl openurl booted "https://link-test.metamask.io/perps-asset?symbol=BTC"
+xcrun simctl openurl booted "https://link-test.metamask.io/perps-asset?symbol=ETH"
+xcrun simctl openurl booted "https://link-test.metamask.io/perps-asset?symbol=SOL"
+```
+
+### Android
+
+```bash
+# Market overview
+adb shell am start -W -a android.intent.action.VIEW \
+  -d "https://link-test.metamask.io/perps" io.metamask.debug
+
+# Specific assets
+adb shell am start -W -a android.intent.action.VIEW \
+  -d "https://link-test.metamask.io/perps-asset?symbol=BTC" io.metamask.debug
+```
+
+## Tech Stack
+
+- Next.js 15
+- TypeScript
+- Tailwind CSS
+- QRCode library for QR generation
+
+## License
+
+MIT
