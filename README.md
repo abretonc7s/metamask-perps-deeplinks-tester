@@ -1,42 +1,57 @@
 # MetaMask Perps Deep Links Tester
 
-A comprehensive web application for testing MetaMask Mobile perpetuals trading deep links with smart routing functionality. This tool generates QR codes and provides easy access to test deep links for the perps feature ([PR #18568](https://github.com/MetaMask/metamask-mobile/pull/18568)).
+A comprehensive web application for testing MetaMask Mobile perpetuals trading deep links with unified routing architecture. This tool generates QR codes and provides easy access to test deep links for the perps feature with the new unified parameter-based structure.
 
 ## Features
 
 - **Environment Toggle**: Switch between Production and Development deep link domains
+- **Unified Deeplink Structure**: All perps links now use single `/perps` entry point with `screen` parameter
 - **QR Code Generation**: Automatic QR codes for each deep link for easy mobile scanning
-- **Smart Routing Support**: Test the new markets screen parameter functionality
+- **Smart Routing Support**: Test the parameter-based navigation system
 - **Copy-to-clipboard**: One-click copying for all deep links
-- **Visual Differentiation**: Clear categorization between navigation and asset-specific links
+- **Visual Categorization**: Clear separation between navigation options and asset trading
 - **Comprehensive Testing Instructions**: Commands for iOS, Android, and mobile testing
 - **Clean, responsive interface** optimized for both desktop and mobile devices
 
+## Unified Deeplink Structure
+
+All perps deeplinks now use a single unified entry point: `/perps`
+
+Navigation is controlled via the `screen` parameter:
+- `/perps` → Default wallet home with Perps tab
+- `/perps?screen=tabs` → Explicit wallet home with Perps tab  
+- `/perps?screen=markets` → Direct access to markets list
+- `/perps?screen=asset&symbol=BTC` → Asset-specific trading pages
+
 ## Deep Links Supported
 
-### Navigation Links
-- **Perps Wallet Tab**: Opens wallet home with Perps tab selected
+### Navigation Options
+- **Perps Wallet Tab (Implicit)**: Default behavior
   - Production: `https://link.metamask.io/perps`
   - Development: `https://link-test.metamask.io/perps`
+
+- **Perps Wallet Tab (Explicit)**: Explicit parameter
+  - Production: `https://link.metamask.io/perps?screen=tabs`
+  - Development: `https://link-test.metamask.io/perps?screen=tabs`
   
-- **Perps Markets List**: Direct access to markets list (NEW - with smart routing)
+- **Perps Markets List**: Direct access to markets list
   - Production: `https://link.metamask.io/perps?screen=markets`
   - Development: `https://link-test.metamask.io/perps?screen=markets`
 
-### Asset-Specific Links
-- **BTC Perps**: Opens Bitcoin perpetual trading
-- **ETH Perps**: Opens Ethereum perpetual trading  
-- **SOL Perps**: Opens Solana perpetual trading
+### Asset Trading Links
+- **BTC Asset Trading**: `screen=asset&symbol=BTC`
+- **ETH Asset Trading**: `screen=asset&symbol=ETH`  
+- **SOL Asset Trading**: `screen=asset&symbol=SOL`
 
 ## Smart Routing Behavior
 
-The enhanced deep links now include smart routing functionality:
+The unified deep links include smart routing functionality:
 
 - **First-time users**: All perps links redirect to tutorial for proper onboarding
-- **Returning users**:
-  - `/perps` → Opens wallet home with Perps tab selected
-  - `/perps?screen=markets` → Direct access to markets list view
-  - `/perps-asset?symbol=X` → Opens specific asset trading page
+- **Returning users are routed based on the screen parameter**:
+  - No parameter or `screen=tabs` → Wallet home with Perps tab
+  - `screen=markets` → Direct access to markets list view
+  - `screen=asset&symbol=X` → Specific asset trading page
 
 ## Supported Domains
 
@@ -99,66 +114,77 @@ vercel
 
 #### Production URLs
 ```bash
-# Navigation links
+# Navigation options
 xcrun simctl openurl booted "https://link.metamask.io/perps"
+xcrun simctl openurl booted "https://link.metamask.io/perps?screen=tabs"
 xcrun simctl openurl booted "https://link.metamask.io/perps?screen=markets"
 
-# Asset-specific links
-xcrun simctl openurl booted "https://link.metamask.io/perps-asset?symbol=BTC"
-xcrun simctl openurl booted "https://link.metamask.io/perps-asset?symbol=ETH"
-xcrun simctl openurl booted "https://link.metamask.io/perps-asset?symbol=SOL"
+# Asset trading
+xcrun simctl openurl booted "https://link.metamask.io/perps?screen=asset&symbol=BTC"
+xcrun simctl openurl booted "https://link.metamask.io/perps?screen=asset&symbol=ETH"
+xcrun simctl openurl booted "https://link.metamask.io/perps?screen=asset&symbol=SOL"
 ```
 
 #### Development URLs
 ```bash
-# Navigation links
+# Navigation options
 xcrun simctl openurl booted "https://link-test.metamask.io/perps"
+xcrun simctl openurl booted "https://link-test.metamask.io/perps?screen=tabs"
 xcrun simctl openurl booted "https://link-test.metamask.io/perps?screen=markets"
 
-# Asset-specific links
-xcrun simctl openurl booted "https://link-test.metamask.io/perps-asset?symbol=BTC"
-xcrun simctl openurl booted "https://link-test.metamask.io/perps-asset?symbol=ETH"
-xcrun simctl openurl booted "https://link-test.metamask.io/perps-asset?symbol=SOL"
+# Asset trading
+xcrun simctl openurl booted "https://link-test.metamask.io/perps?screen=asset&symbol=BTC"
+xcrun simctl openurl booted "https://link-test.metamask.io/perps?screen=asset&symbol=ETH"
+xcrun simctl openurl booted "https://link-test.metamask.io/perps?screen=asset&symbol=SOL"
 ```
 
 ### Android
 
 #### Production URLs
 ```bash
-# Navigation links
+# Navigation options
 adb shell am start -W -a android.intent.action.VIEW \
   -d "https://link.metamask.io/perps" io.metamask
 
 adb shell am start -W -a android.intent.action.VIEW \
+  -d "https://link.metamask.io/perps?screen=tabs" io.metamask
+
+adb shell am start -W -a android.intent.action.VIEW \
   -d "https://link.metamask.io/perps?screen=markets" io.metamask
 
-# Asset-specific links
+# Asset trading
 adb shell am start -W -a android.intent.action.VIEW \
-  -d "https://link.metamask.io/perps-asset?symbol=BTC" io.metamask
+  -d "https://link.metamask.io/perps?screen=asset&symbol=BTC" io.metamask
 ```
 
 #### Development URLs
 ```bash
-# Navigation links
+# Navigation options
 adb shell am start -W -a android.intent.action.VIEW \
   -d "https://link-test.metamask.io/perps" io.metamask.debug
 
 adb shell am start -W -a android.intent.action.VIEW \
+  -d "https://link-test.metamask.io/perps?screen=tabs" io.metamask.debug
+
+adb shell am start -W -a android.intent.action.VIEW \
   -d "https://link-test.metamask.io/perps?screen=markets" io.metamask.debug
 
-# Asset-specific links
+# Asset trading
 adb shell am start -W -a android.intent.action.VIEW \
-  -d "https://link-test.metamask.io/perps-asset?symbol=BTC" io.metamask.debug
+  -d "https://link-test.metamask.io/perps?screen=asset&symbol=BTC" io.metamask.debug
 ```
 
 ### Manual Testing Scenarios
 
-Test the smart routing behavior with these scenarios:
+Test the unified deeplink structure and smart routing with these scenarios:
 
-1. **First-time user testing**: All perps URLs should redirect to tutorial
-2. **Returning user - Wallet Tab**: `/perps` should open wallet home with perps tab
-3. **Returning user - Markets List**: `/perps?screen=markets` should open markets list directly
-4. **Asset-specific**: All `/perps-asset?symbol=X` should open specific asset pages
+1. **First-time user testing**: All perps URLs should redirect to tutorial regardless of parameters
+2. **Returning user - Default Navigation**: `/perps` should open wallet home with perps tab
+3. **Returning user - Explicit Navigation**: `/perps?screen=tabs` should open wallet home with perps tab  
+4. **Returning user - Markets List**: `/perps?screen=markets` should open markets list directly
+5. **Asset-specific**: All `/perps?screen=asset&symbol=X` should open specific asset trading pages
+6. **Parameter parsing**: Test malformed parameters and edge cases
+7. **Invalid symbols**: Test with unsupported asset symbols
 
 ### Alternative Domain Testing
 

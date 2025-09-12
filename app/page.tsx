@@ -35,9 +35,16 @@ const environments: Environment[] = [
 
 const deepLinksConfig: DeepLink[] = [
   {
-    title: 'Perps Wallet Tab',
+    title: 'Perps Wallet Tab (Implicit)',
     path: '/perps',
-    description: 'Opens wallet home with Perps tab selected',
+    description: 'Opens wallet home with Perps tab selected (default behavior)',
+    category: 'navigation',
+    icon: 'wallet'
+  },
+  {
+    title: 'Perps Wallet Tab (Explicit)',
+    path: '/perps?screen=tabs',
+    description: 'Explicitly opens wallet home with Perps tab selected',
     category: 'navigation',
     icon: 'wallet'
   },
@@ -50,25 +57,25 @@ const deepLinksConfig: DeepLink[] = [
     isNew: true
   },
   {
-    title: 'BTC Perps',
-    path: '/perps-asset?symbol=BTC',
-    description: 'Opens Bitcoin perpetual trading',
+    title: 'BTC Asset Trading',
+    path: '/perps?screen=asset&symbol=BTC',
+    description: 'Opens Bitcoin perpetual trading page',
     symbol: 'BTC',
     category: 'asset',
     icon: 'asset'
   },
   {
-    title: 'ETH Perps',
-    path: '/perps-asset?symbol=ETH',
-    description: 'Opens Ethereum perpetual trading',
+    title: 'ETH Asset Trading',
+    path: '/perps?screen=asset&symbol=ETH',
+    description: 'Opens Ethereum perpetual trading page',
     symbol: 'ETH',
     category: 'asset',
     icon: 'asset'
   },
   {
-    title: 'SOL Perps',
-    path: '/perps-asset?symbol=SOL',
-    description: 'Opens Solana perpetual trading',
+    title: 'SOL Asset Trading',
+    path: '/perps?screen=asset&symbol=SOL',
+    description: 'Opens Solana perpetual trading page',
     symbol: 'SOL',
     category: 'asset',
     icon: 'asset'
@@ -219,27 +226,45 @@ export default function Home() {
           </div>
         </header>
 
+        {/* Unified Deeplink Structure Info */}
+        <div className="mb-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-blue-800 mb-3">🔗 Unified Deeplink Structure</h3>
+          <div className="space-y-3 text-sm text-blue-700">
+            <p><strong>All perps deeplinks now use a single unified entry point:</strong> <code>/perps</code></p>
+            <p><strong>Navigation is controlled via the <code>screen</code> parameter:</strong></p>
+            <ul className="list-disc list-inside ml-4 space-y-1">
+              <li><code>/perps</code> → Default wallet home with Perps tab</li>
+              <li><code>/perps?screen=tabs</code> → Explicit wallet home with Perps tab</li>
+              <li><code>/perps?screen=markets</code> → Direct access to markets list</li>
+              <li><code>/perps?screen=asset&symbol=BTC</code> → Asset-specific trading pages</li>
+            </ul>
+          </div>
+        </div>
+
         {/* Smart Routing Info */}
         <div className="mb-8 bg-amber-50 border border-amber-200 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-amber-800 mb-3">📱 Smart Routing Behavior</h3>
           <div className="space-y-2 text-sm text-amber-700">
             <p><strong>First-time users:</strong> All perps links redirect to tutorial for proper onboarding</p>
-            <p><strong>Returning users:</strong></p>
+            <p><strong>Returning users are routed based on the screen parameter:</strong></p>
             <ul className="list-disc list-inside ml-4 space-y-1">
-              <li><code>/perps</code> → Opens wallet home with Perps tab selected</li>
-              <li><code>/perps?screen=markets</code> → Direct access to markets list view</li>
-              <li><code>/perps-asset?symbol=X</code> → Opens specific asset trading page</li>
+              <li>No parameter or <code>screen=tabs</code> → Wallet home with Perps tab</li>
+              <li><code>screen=markets</code> → Direct access to markets list view</li>
+              <li><code>screen=asset&symbol=X</code> → Specific asset trading page</li>
             </ul>
           </div>
         </div>
 
-        {/* Navigation Links */}
+        {/* Navigation Options */}
         <section className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
             <Wallet className="w-6 h-6 text-blue-600" />
-            Navigation Links
+            Navigation Options
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <p className="text-gray-600 mb-6">
+            Test different navigation entry points using the unified <code>/perps</code> endpoint with various <code>screen</code> parameters.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {navigationLinks.map((link, index) => (
               <div
                 key={`nav-${index}`}
@@ -309,12 +334,15 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Asset-Specific Links */}
+        {/* Asset Trading Links */}
         <section className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
             <ExternalLink className="w-6 h-6 text-green-600" />
-            Asset-Specific Links
+            Asset Trading Links
           </h2>
+          <p className="text-gray-600 mb-6">
+            Test asset-specific deeplinks using <code>/perps?screen=asset&symbol=X</code> format with the unified parameter structure.
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {assetLinks.map((link, index) => (
               <div
@@ -406,26 +434,28 @@ export default function Home() {
               <div className="space-y-4">
                 <h4 className="font-semibold text-blue-600">Production URLs:</h4>
                 <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
-{`# Navigation links
+{`# Navigation options
 xcrun simctl openurl booted "${environments[0].domain}/perps"
+xcrun simctl openurl booted "${environments[0].domain}/perps?screen=tabs"
 xcrun simctl openurl booted "${environments[0].domain}/perps?screen=markets"
 
-# Asset-specific links
-xcrun simctl openurl booted "${environments[0].domain}/perps-asset?symbol=BTC"
-xcrun simctl openurl booted "${environments[0].domain}/perps-asset?symbol=ETH"
-xcrun simctl openurl booted "${environments[0].domain}/perps-asset?symbol=SOL"`}
+# Asset trading
+xcrun simctl openurl booted "${environments[0].domain}/perps?screen=asset&symbol=BTC"
+xcrun simctl openurl booted "${environments[0].domain}/perps?screen=asset&symbol=ETH"
+xcrun simctl openurl booted "${environments[0].domain}/perps?screen=asset&symbol=SOL"`}
                 </pre>
 
                 <h4 className="font-semibold text-amber-600">Development URLs:</h4>
                 <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
-{`# Navigation links
+{`# Navigation options
 xcrun simctl openurl booted "${environments[1].domain}/perps"
+xcrun simctl openurl booted "${environments[1].domain}/perps?screen=tabs"
 xcrun simctl openurl booted "${environments[1].domain}/perps?screen=markets"
 
-# Asset-specific links
-xcrun simctl openurl booted "${environments[1].domain}/perps-asset?symbol=BTC"
-xcrun simctl openurl booted "${environments[1].domain}/perps-asset?symbol=ETH"
-xcrun simctl openurl booted "${environments[1].domain}/perps-asset?symbol=SOL"`}
+# Asset trading
+xcrun simctl openurl booted "${environments[1].domain}/perps?screen=asset&symbol=BTC"
+xcrun simctl openurl booted "${environments[1].domain}/perps?screen=asset&symbol=ETH"
+xcrun simctl openurl booted "${environments[1].domain}/perps?screen=asset&symbol=SOL"`}
                 </pre>
               </div>
             </div>
@@ -435,30 +465,36 @@ xcrun simctl openurl booted "${environments[1].domain}/perps-asset?symbol=SOL"`}
               <div className="space-y-4">
                 <h4 className="font-semibold text-blue-600">Production URLs:</h4>
                 <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
-{`# Navigation links
+{`# Navigation options
 adb shell am start -W -a android.intent.action.VIEW \\
   -d "${environments[0].domain}/perps" io.metamask
 
 adb shell am start -W -a android.intent.action.VIEW \\
+  -d "${environments[0].domain}/perps?screen=tabs" io.metamask
+
+adb shell am start -W -a android.intent.action.VIEW \\
   -d "${environments[0].domain}/perps?screen=markets" io.metamask
 
-# Asset-specific links
+# Asset trading
 adb shell am start -W -a android.intent.action.VIEW \\
-  -d "${environments[0].domain}/perps-asset?symbol=BTC" io.metamask`}
+  -d "${environments[0].domain}/perps?screen=asset&symbol=BTC" io.metamask`}
                 </pre>
 
                 <h4 className="font-semibold text-amber-600">Development URLs:</h4>
                 <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
-{`# Navigation links
+{`# Navigation options
 adb shell am start -W -a android.intent.action.VIEW \\
   -d "${environments[1].domain}/perps" io.metamask.debug
 
 adb shell am start -W -a android.intent.action.VIEW \\
+  -d "${environments[1].domain}/perps?screen=tabs" io.metamask.debug
+
+adb shell am start -W -a android.intent.action.VIEW \\
   -d "${environments[1].domain}/perps?screen=markets" io.metamask.debug
 
-# Asset-specific links
+# Asset trading
 adb shell am start -W -a android.intent.action.VIEW \\
-  -d "${environments[1].domain}/perps-asset?symbol=BTC" io.metamask.debug`}
+  -d "${environments[1].domain}/perps?screen=asset&symbol=BTC" io.metamask.debug`}
                 </pre>
               </div>
             </div>
