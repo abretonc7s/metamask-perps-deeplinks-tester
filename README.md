@@ -9,49 +9,94 @@ A comprehensive web application for testing MetaMask Mobile perpetuals trading d
 - **QR Code Generation**: Automatic QR codes for each deep link for easy mobile scanning
 - **Smart Routing Support**: Test the parameter-based navigation system
 - **Copy-to-clipboard**: One-click copying for all deep links
-- **Visual Categorization**: Clear separation between navigation options and asset trading
+- **Visual Categorization**: Clear separation between navigation, market list, and asset trading
 - **Comprehensive Testing Instructions**: Commands for iOS, Android, and mobile testing
 - **Clean, responsive interface** optimized for both desktop and mobile devices
 
 ## Unified Deeplink Structure
 
-All perps deeplinks now use a single unified entry point: `/perps`
+All perps deeplinks use a single unified entry point: `/perps`
 
-Navigation is controlled via the `screen` parameter:
-- `/perps` → Default wallet home with Perps tab
-- `/perps?screen=tabs` → Explicit wallet home with Perps tab  
-- `/perps?screen=markets` → Direct access to markets list
-- `/perps?screen=asset&symbol=BTC` → Asset-specific trading pages
+### Screen Parameter Values
+
+| Screen Value | Target View | Description |
+|-------------|-------------|-------------|
+| (none) | Wallet Home → Perps Tab | Default behavior |
+| `tabs` | Wallet Home → Perps Tab | Explicit wallet tab navigation |
+| `home` | PerpsHomeView | Landing page (positions, orders, watchlist) |
+| `markets` | PerpsHomeView | Backwards compatibility - same as `home` |
+| `market-list` | PerpsMarketListView | Full market browser with search/filter |
+| `asset` | PerpsMarketDetailsView | Single market detail + TradingView chart |
+
+### Tab Parameter (for market-list)
+
+| Value | Description | Internal Filter |
+|-------|-------------|-----------------|
+| `all` | All markets (crypto + stocks + commodities) | `'all'` |
+| `crypto` | Crypto-only markets | `'crypto'` |
+| `stocks` | Stocks and commodities (HIP-3 markets) | `'stocks_and_commodities'` |
+
+### HIP-3 Symbol Format
+
+HIP-3 (builder-deployed DEX) markets use the format `dex:symbol`:
+
+| Symbol | Description |
+|--------|-------------|
+| `BTC` | Standard crypto (main DEX) |
+| `xyz:TSLA` | HIP-3 stock (Tesla via xyz DEX) |
+| `xyz:xyz100` | HIP-3 index asset |
 
 ## Deep Links Supported
 
 ### Navigation Options
-- **Perps Wallet Tab (Implicit)**: Default behavior
-  - Production: `https://link.metamask.io/perps`
-  - Development: `https://link-test.metamask.io/perps`
 
-- **Perps Wallet Tab (Explicit)**: Explicit parameter
-  - Production: `https://link.metamask.io/perps?screen=tabs`
-  - Development: `https://link-test.metamask.io/perps?screen=tabs`
-  
-- **Perps Markets List**: Direct access to markets list
-  - Production: `https://link.metamask.io/perps?screen=markets`
-  - Development: `https://link-test.metamask.io/perps?screen=markets`
+- **Perps Wallet Tab (Default)**: Opens wallet home with Perps tab
+  - `/perps`
+
+- **Perps Wallet Tab (Explicit)**: Explicit screen parameter
+  - `/perps?screen=tabs`
+
+- **Perps Home View**: Direct navigation to PerpsHomeView
+  - `/perps?screen=home`
+
+- **Perps Home (Backwards Compat)**: Same as home
+  - `/perps?screen=markets`
+
+### Market List Links
+
+- **All Markets**: Full market browser
+  - `/perps?screen=market-list`
+
+- **Crypto Markets Only**: Filtered to crypto
+  - `/perps?screen=market-list&tab=crypto`
+
+- **Stocks & Commodities (HIP-3)**: Filtered to HIP-3 assets
+  - `/perps?screen=market-list&tab=stocks`
 
 ### Asset Trading Links
-- **BTC Asset Trading**: `screen=asset&symbol=BTC`
-- **ETH Asset Trading**: `screen=asset&symbol=ETH`  
-- **SOL Asset Trading**: `screen=asset&symbol=SOL`
+
+**Standard Crypto:**
+- `/perps?screen=asset&symbol=BTC` - Bitcoin
+- `/perps?screen=asset&symbol=ETH` - Ethereum
+- `/perps?screen=asset&symbol=SOL` - Solana
+
+**HIP-3 Format:**
+- `/perps?screen=asset&symbol=xyz:TSLA` - Tesla via xyz DEX
+- `/perps?screen=asset&symbol=xyz:xyz100` - xyz100 Index
 
 ## Smart Routing Behavior
 
 The unified deep links include smart routing functionality:
 
-- **First-time users**: All perps links redirect to tutorial for proper onboarding
-- **Returning users are routed based on the screen parameter**:
-  - No parameter or `screen=tabs` → Wallet home with Perps tab
-  - `screen=markets` → Direct access to markets list view
-  - `screen=asset&symbol=X` → Specific asset trading page
+### First-Time Users
+All perps links redirect to tutorial for proper onboarding, regardless of URL parameters.
+
+### Returning Users
+Routed based on the screen parameter:
+- No parameter or `screen=tabs` → Wallet home with Perps tab
+- `screen=home` or `screen=markets` → PerpsHomeView
+- `screen=market-list` → PerpsMarketListView (with optional tab filter)
+- `screen=asset&symbol=X` → PerpsMarketDetailsView
 
 ## Supported Domains
 
@@ -67,7 +112,7 @@ The unified deep links include smart routing functionality:
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - npm
 
 ### Installation
@@ -114,64 +159,100 @@ vercel
 
 #### Production URLs
 ```bash
-# Navigation options
+# Wallet tab navigation
 xcrun simctl openurl booted "https://link.metamask.io/perps"
 xcrun simctl openurl booted "https://link.metamask.io/perps?screen=tabs"
+
+# Home view
+xcrun simctl openurl booted "https://link.metamask.io/perps?screen=home"
 xcrun simctl openurl booted "https://link.metamask.io/perps?screen=markets"
 
-# Asset trading
+# Market list with filters
+xcrun simctl openurl booted "https://link.metamask.io/perps?screen=market-list"
+xcrun simctl openurl booted "https://link.metamask.io/perps?screen=market-list&tab=crypto"
+xcrun simctl openurl booted "https://link.metamask.io/perps?screen=market-list&tab=stocks"
+
+# Asset trading (crypto)
 xcrun simctl openurl booted "https://link.metamask.io/perps?screen=asset&symbol=BTC"
 xcrun simctl openurl booted "https://link.metamask.io/perps?screen=asset&symbol=ETH"
-xcrun simctl openurl booted "https://link.metamask.io/perps?screen=asset&symbol=SOL"
+
+# Asset trading (HIP-3)
+xcrun simctl openurl booted "https://link.metamask.io/perps?screen=asset&symbol=xyz:TSLA"
 ```
 
 #### Development URLs
 ```bash
-# Navigation options
+# Wallet tab navigation
 xcrun simctl openurl booted "https://link-test.metamask.io/perps"
 xcrun simctl openurl booted "https://link-test.metamask.io/perps?screen=tabs"
+
+# Home view
+xcrun simctl openurl booted "https://link-test.metamask.io/perps?screen=home"
 xcrun simctl openurl booted "https://link-test.metamask.io/perps?screen=markets"
 
-# Asset trading
+# Market list with filters
+xcrun simctl openurl booted "https://link-test.metamask.io/perps?screen=market-list"
+xcrun simctl openurl booted "https://link-test.metamask.io/perps?screen=market-list&tab=crypto"
+xcrun simctl openurl booted "https://link-test.metamask.io/perps?screen=market-list&tab=stocks"
+
+# Asset trading (crypto)
 xcrun simctl openurl booted "https://link-test.metamask.io/perps?screen=asset&symbol=BTC"
 xcrun simctl openurl booted "https://link-test.metamask.io/perps?screen=asset&symbol=ETH"
-xcrun simctl openurl booted "https://link-test.metamask.io/perps?screen=asset&symbol=SOL"
+
+# Asset trading (HIP-3)
+xcrun simctl openurl booted "https://link-test.metamask.io/perps?screen=asset&symbol=xyz:TSLA"
 ```
 
 ### Android
 
 #### Production URLs
 ```bash
-# Navigation options
+# Wallet tab navigation
 adb shell am start -W -a android.intent.action.VIEW \
   -d "https://link.metamask.io/perps" io.metamask
 
+# Home view
 adb shell am start -W -a android.intent.action.VIEW \
-  -d "https://link.metamask.io/perps?screen=tabs" io.metamask
+  -d "https://link.metamask.io/perps?screen=home" io.metamask
 
+# Market list with filters
 adb shell am start -W -a android.intent.action.VIEW \
-  -d "https://link.metamask.io/perps?screen=markets" io.metamask
+  -d "https://link.metamask.io/perps?screen=market-list" io.metamask
+adb shell am start -W -a android.intent.action.VIEW \
+  -d "https://link.metamask.io/perps?screen=market-list&tab=crypto" io.metamask
+adb shell am start -W -a android.intent.action.VIEW \
+  -d "https://link.metamask.io/perps?screen=market-list&tab=stocks" io.metamask
 
-# Asset trading
+# Asset trading (crypto & HIP-3)
 adb shell am start -W -a android.intent.action.VIEW \
   -d "https://link.metamask.io/perps?screen=asset&symbol=BTC" io.metamask
+adb shell am start -W -a android.intent.action.VIEW \
+  -d "https://link.metamask.io/perps?screen=asset&symbol=xyz:TSLA" io.metamask
 ```
 
 #### Development URLs
 ```bash
-# Navigation options
+# Wallet tab navigation
 adb shell am start -W -a android.intent.action.VIEW \
   -d "https://link-test.metamask.io/perps" io.metamask.debug
 
+# Home view
 adb shell am start -W -a android.intent.action.VIEW \
-  -d "https://link-test.metamask.io/perps?screen=tabs" io.metamask.debug
+  -d "https://link-test.metamask.io/perps?screen=home" io.metamask.debug
 
+# Market list with filters
 adb shell am start -W -a android.intent.action.VIEW \
-  -d "https://link-test.metamask.io/perps?screen=markets" io.metamask.debug
+  -d "https://link-test.metamask.io/perps?screen=market-list" io.metamask.debug
+adb shell am start -W -a android.intent.action.VIEW \
+  -d "https://link-test.metamask.io/perps?screen=market-list&tab=crypto" io.metamask.debug
+adb shell am start -W -a android.intent.action.VIEW \
+  -d "https://link-test.metamask.io/perps?screen=market-list&tab=stocks" io.metamask.debug
 
-# Asset trading
+# Asset trading (crypto & HIP-3)
 adb shell am start -W -a android.intent.action.VIEW \
   -d "https://link-test.metamask.io/perps?screen=asset&symbol=BTC" io.metamask.debug
+adb shell am start -W -a android.intent.action.VIEW \
+  -d "https://link-test.metamask.io/perps?screen=asset&symbol=xyz:TSLA" io.metamask.debug
 ```
 
 ### Manual Testing Scenarios
@@ -180,11 +261,14 @@ Test the unified deeplink structure and smart routing with these scenarios:
 
 1. **First-time user testing**: All perps URLs should redirect to tutorial regardless of parameters
 2. **Returning user - Default Navigation**: `/perps` should open wallet home with perps tab
-3. **Returning user - Explicit Navigation**: `/perps?screen=tabs` should open wallet home with perps tab  
-4. **Returning user - Markets List**: `/perps?screen=markets` should open markets list directly
-5. **Asset-specific**: All `/perps?screen=asset&symbol=X` should open specific asset trading pages
-6. **Parameter parsing**: Test malformed parameters and edge cases
-7. **Invalid symbols**: Test with unsupported asset symbols
+3. **Returning user - Explicit Navigation**: `/perps?screen=tabs` should open wallet home with perps tab
+4. **Returning user - Home View**: `/perps?screen=home` should open PerpsHomeView directly
+5. **Returning user - Backwards Compat**: `/perps?screen=markets` should behave same as `screen=home`
+6. **Market List - All**: `/perps?screen=market-list` should open full market browser
+7. **Market List - Filtered**: Test `tab=crypto` and `tab=stocks` filters
+8. **Asset-specific (Crypto)**: `/perps?screen=asset&symbol=BTC` should open BTC trading page
+9. **Asset-specific (HIP-3)**: `/perps?screen=asset&symbol=xyz:TSLA` should open TSLA with xyz DEX source
+10. **Invalid symbols**: Test with unsupported asset symbols (should fallback to home)
 
 ### Alternative Domain Testing
 
